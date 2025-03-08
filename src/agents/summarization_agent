@@ -1,0 +1,23 @@
+# src/agents/summarization_agent.py
+from langchain.chains.summarize import load_summarize_chain
+import google.generativeai as genai
+from langchain.prompts import PromptTemplate
+
+class SummarizationAgent:
+    def __init__(self, google_api_key=None, model_name="gemini-1.5-pro-latest"):
+        genai.configure(api_key=google_api_key)
+        self.model = genai.GenerativeModel(model_name)  # Gemini Pro model
+
+    def simplify_legal_text(self, legal_text, target_audience="general public"):
+        prompt_template = f"""You are an expert legal simplifier. Your task is to translate complex legal language into plain, easy-to-understand terms for the {target_audience}.
+        Maintain accuracy and avoid misrepresenting the original meaning.
+
+        Original Legal Text:
+        {{legal_text}}
+
+        Simplified Explanation:
+        """
+
+        prompt = PromptTemplate(template=prompt_template, input_variables=["legal_text"])
+        response = self.model.generate_content(prompt.format(legal_text=legal_text))
+        return response.text
